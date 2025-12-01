@@ -33,13 +33,6 @@
 std::vector<int> shm_id_exam;
 int shm_id_student_number;
 
-//An enumeration of actions to make assignment easier
-enum action {
-    READ,
-    WRITE,
-    ETC,
-};
-
 struct exam {
     int*                 student_id;
     std::vector<bool*>   questions_marked;
@@ -48,12 +41,6 @@ struct exam {
 struct rubric_line {
     int             exercise;
     char            text;
-};
-
-struct ta {
-    int             id;
-    action          current_action;
-    int             rubric_line;
 };
 
 union semun {
@@ -177,20 +164,6 @@ rubric_line add_rubric_line (std::vector<std::string> tokens) {
 int add_tas (std::vector<std::string> tokens) {
     int ta_num = std::stoi(tokens[0]);
     return ta_num;
-}
-
-void write_output (std::string execution, const char* filename) {
-    std::ofstream output_file(filename);
-
-    if (output_file.is_open()) {
-        output_file << execution;
-        output_file.close();  // Close the file when done
-        std::cout << "File content overwritten successfully." << std::endl;
-    } else {
-        std::cerr << "Error opening file!" << std::endl;
-    }
-
-    std::cout << "Output generated in " << filename << ".txt" << std::endl;
 }
 
 #endif

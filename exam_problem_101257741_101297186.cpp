@@ -45,7 +45,6 @@ void read_rubric (){
     int i = 0;
     while (std::getline(rubric_filez, line)) {
         auto input_tokens = split_delim(line, ", ");
-        //auto new_rubric_line = add_rubric_line(input_tokens);
         rubric_line * rubric_line_pointer;
 
         int shm_idz;
@@ -73,7 +72,6 @@ void correct_rubric (int index){
 
     SemaphoreWait(rubric_mutex, 1);
     (*rubric[index]).text++;
-    // access the critical section here.
 
     std::ofstream output_file (rubric_file);
 
@@ -141,14 +139,14 @@ void run_simulation() {
             }
         }
         std::cout<<"marking exam... \n";
-        for (int i = 0; i < rubric.size()+1; i++){
+        for (int i = 0; i < rubric.size()+1; i++){//going through each question, maybe marking
             SemaphoreWait(question_mutex, 1);
-            if (*(current_exam.questions_marked[i]) == false){
-                if(i == rubric.size()){
+            if (*(current_exam.questions_marked[i]) == false){//if the question hasn't been marked
+                if(i == rubric.size()){//loading exam if done
                     *(current_exam.questions_marked[i]) = true;
                     load_exam();
                     SemaphoreSignal(question_mutex);
-                } else {
+                } else {//mark the exam
                     *(current_exam.questions_marked[i]) = true;
                     SemaphoreSignal(question_mutex);
                     int time_period = ((rand()/ double(RAND_MAX)) + 1) * 1000;
@@ -159,6 +157,7 @@ void run_simulation() {
                 SemaphoreSignal(question_mutex);
             }
         }
+        //if ur done
         if(*next_exam_number > exam_list.size() || *(current_exam.student_id) == 9999){
             std::cout <<"Done marking student exams...\n";
             *done = true;
@@ -178,6 +177,7 @@ int main (int argc, char** argv) {
         return -1;
     }
 
+    //shared memory for *done
     int shm_sizez = sizeof(bool);
     int shm_idzz;
     if ((shm_idzz = shmget(IPC_PRIVATE, shm_sizez, IPC_CREAT | 0600)) <= 0) {
@@ -195,7 +195,7 @@ int main (int argc, char** argv) {
 
     rubric_file = rubric_file_name;
 
-    if (( rubric_mutex = SemaphoreCreate(1)) == -1) {
+    if (( rubric_mutex = SemaphoreCreate(1)) == -1) {//rubric semaphore
         SemaphoreRemove(rubric_mutex);
         perror("Error in SemaphoreCreate");
         exit(1);
@@ -236,6 +236,7 @@ int main (int argc, char** argv) {
         exit(1);
     }
 
+    //shared memory for next_exam_number
     int shm_size1 = sizeof(int);
     int shm_idz;
     if ((shm_idz = shmget(IPC_PRIVATE, shm_size1, IPC_CREAT | 0600)) <= 0) {
@@ -250,6 +251,7 @@ int main (int argc, char** argv) {
 
     load_exam();
 
+    //create question semaphore
     if (( question_mutex = SemaphoreCreate(1)) == -1) {
         SemaphoreRemove(question_mutex);
         perror("Error in SemaphoreCreate");
@@ -258,24 +260,31 @@ int main (int argc, char** argv) {
 
     std::cout<<"exam loaded\n";
 
+    //create TA processes
+    std::cout<<"ta online\n";
     for(int i = 1; i<ta_num; i++){
         c_pid = fork();
+        std::cout<<"ta online\n";
         if(c_pid == 0){
             break;
         }
     }
-    //With the list of processes, run the simulation
+
+    //With the processes, run the simulation
     run_simulation();
 
+    //terminate processes
     if(c_pid == 0){
+        std::cout<<"ta offline\n";
         exit(0);
     }
 
+    //wait if you're the parent
     for(int i = 0; i<ta_num; i++){
         wait(NULL);
     }
 
-    //write_output(exec, "execution.txt");
+    //clean up 
     clear_rubric();
     if (shmctl(shm_idz, IPC_RMID, (struct shmid_ds *) 0) < 0){
         perror("can’t IPC_RMID shared");
@@ -288,6 +297,7 @@ int main (int argc, char** argv) {
     SemaphoreRemove(rubric_mutex);
     SemaphoreRemove(exam_mutex);
     SemaphoreRemove(question_mutex);
+    std::cout<<"ta ofline\nmarking completed";
 
     return 0;
 }
