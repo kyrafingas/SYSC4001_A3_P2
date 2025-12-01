@@ -31,6 +31,7 @@
 #include <stdlib.h>
 
 std::vector<int> shm_id_exam;
+int shm_id_student_number;
 
 //An enumeration of actions to make assignment easier
 enum action {
@@ -40,7 +41,7 @@ enum action {
 };
 
 struct exam {
-    int                 student_id;
+    int*                 student_id;
     std::vector<bool*>   questions_marked;
 };
 
@@ -117,6 +118,10 @@ std::vector<std::string> split_delim(std::string input, std::string delim) {
 
 void clear_exam(){
     if(shm_id_exam.size() > 0){
+        if (shmctl(shm_id_student_number, IPC_RMID, (struct shmid_ds *) 0) < 0){
+            perror("can’t IPC_RMID shared");
+            exit(0);
+        }
         for(int i = 0; i<shm_id_exam.size(); i++){
             if (shmctl(shm_id_exam[i], IPC_RMID, (struct shmid_ds *) 0) < 0){
                 perror("can’t IPC_RMID shared");
@@ -127,13 +132,25 @@ void clear_exam(){
 }
 
 exam add_exam (std::vector<std::string> tokens, int num_questions) {
-    std::cout<<"in add exam\n";
     exam examz;
-    examz.student_id = std::stoi(tokens[0]);
-    examz.questions_marked.resize(num_questions);
+
+    int shm_size = sizeof(int);
+    int shm_id;
+    if ((shm_id = shmget(IPC_PRIVATE, shm_size, IPC_CREAT | 0600)) <= 0) {
+        perror( "Error in shmget");
+    }
+    try{
+        examz.student_id = (int * ) shmat (shm_id, (char *)0, 0 );
+    }catch(...){
+        perror("Error in shmat");
+    }
+    (*examz.student_id) = std::stoi(tokens[0]);
+    shm_id_student_number = shm_id;
+
+    examz.questions_marked.resize(num_questions+1);
     int shm_size1 = sizeof(examz.questions_marked);
     
-    for (int i = 0; i < num_questions; i++){
+    for (int i = 0; i < num_questions + 1; i++){
         int shm_idz;
         if ((shm_idz = shmget(IPC_PRIVATE, shm_size1, IPC_CREAT | 0600)) <= 0) {
             perror( "Error in shmget");
@@ -158,15 +175,7 @@ rubric_line add_rubric_line (std::vector<std::string> tokens) {
 }
 
 int add_tas (std::vector<std::string> tokens) {
-    //std::vector<ta> list_tas;
     int ta_num = std::stoi(tokens[0]);
-    //for (int i = 0; i < ta_num; i++){
-        //ta new_ta;
-        //new_ta.id = i;
-        //new_ta.current_action = READ;
-        //new_ta.rubric_line = 0;
-        //list_tas.push_back(new_ta);
-    //}
     return ta_num;
 }
 
