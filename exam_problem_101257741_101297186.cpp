@@ -172,7 +172,7 @@ void run_simulation() {
 //deals with opening and reading file and writing to the execution file
 int main (int argc, char** argv) {
     //Get the input file from the user
-    if (argc != 23) {
+    if (argc <= 23) {
         std::cout << "ERROR!\nExpected 3 argument, received " << argc - 1 << std::endl;
         std::cout << "To run the program, do: ./exam_problem <your_exam_file.txt> <your_rubric_file.txt> <your_ta_file.txt>" << std::endl;
         return -1;
@@ -225,7 +225,7 @@ int main (int argc, char** argv) {
 
     std::cout<<"ta file read\n";
 
-    for (int i = 3; i < 21; i++){
+    for (int i = 3; i < 23; i++){
         exam_list.push_back(argv[i]);
     }
 

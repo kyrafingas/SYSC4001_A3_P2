@@ -1,0 +1,32 @@
+# Compilation and Running
+
+Compile the code with linux in the following steps:
+
+1. g++ -g -O0 -I . -o bin/exam_problem exam_problem_101257741_101297186.cpp
+2. cd bin
+3. run exam_problem (see below)
+
+Running exam_problem:
+
+main file to run: ./exam_problem 
+files to add after in order: rubric, ta, 20 exam files (any order)
+example command: ./exam_problem ~/SYSC4001_A3_P2/rubric1.txt ~/SYSC4001_A3_P2/ta.txt ~/SYSC4001_A3_P2/exams/exam1.txt ~/SYSC4001_A3_P2/exams/exam2.txt ~/SYSC4001_A3_P2/exams/exam3.txt ~/SYSC4001_A3_P2/exams/exam4.txt ~/SYSC4001_A3_P2/exams/exam5.txt ~/SYSC4001_A3_P2/exams/exam6.txt ~/SYSC4001_A3_P2/exams/exam7.txt ~/SYSC4001_A3_P2/exams/exam8.txt ~/SYSC4001_A3_P2/exams/exam9.txt ~/SYSC4001_A3_P2/exams/exam10.txt ~/SYSC4001_A3_P2/exams/exam11.txt ~/SYSC4001_A3_P2/exams/exam12.txt ~/SYSC4001_A3_P2/exams/exam13.txt ~/SYSC4001_A3_P2/exams/exam14.txt ~/SYSC4001_A3_P2/exams/exam15.txt ~/SYSC4001_A3_P2/exams/exam16.txt ~/SYSC4001_A3_P2/exams/exam17.txt ~/SYSC4001_A3_P2/exams/exam18.txt ~/SYSC4001_A3_P2/exams/exam19.txt ~/SYSC4001_A3_P3/exams/exam20.txt
+
+
+# Running Code with Different Testcases
+
+Multiple TAs:
+To change the number of TAs, edit ta.txt to contain the desired number of tas (default 4)
+
+Different number of exam files:
+To change the number of exam files, change line 175 of exam_problem_101257741_101297186.cpp to be: 
+    if (argc <= (3 + desired_number_of_files)) {
+and line 228 to be:
+    for (int i = 3; i < (3 + desired_number_of_files); i++){
+and place the files in any order into the command to compile
+
+Changing Rubric: 
+To change the rubric, edit rubric.txt
+
+Terminating on student id 9999
+Student id 9999 is contained on exam9.txt in the stored testcases. Place the exam files in the order so exam9.txt is read when termination is desired.
